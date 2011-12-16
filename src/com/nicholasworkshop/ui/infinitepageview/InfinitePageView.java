@@ -1,5 +1,6 @@
 package com.nicholasworkshop.ui.infinitepageview;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.LinkedList;
@@ -95,8 +96,10 @@ public class InfinitePageView extends ViewPager {
 					mViews.get(i).getChildAt(0).setDrawingCacheEnabled(true);
 					mViews.get(i).getChildAt(0).buildDrawingCache();
 					Bitmap b = mViews.get(i).getChildAt(0).getDrawingCache();
+					String path = Environment.getExternalStorageDirectory() + "/.nicholasworkshop/cache/" + b.hashCode() + ".jpg"; 
+					new File(Environment.getExternalStorageDirectory() + "/.nicholasworkshop/cache/").mkdirs();
 					try {
-						b.compress(CompressFormat.JPEG, 95, new FileOutputStream(Environment.getExternalStorageDirectory() + "/testing.jpg"));
+						b.compress(CompressFormat.JPEG, 95, new FileOutputStream(path));
 					}
 					catch (FileNotFoundException e) {
 						e.printStackTrace();
@@ -104,7 +107,7 @@ public class InfinitePageView extends ViewPager {
 					ImageView imageView = new ImageView(getContext());
 					imageView.setScaleType(ImageView.ScaleType.FIT_START);
 					imageView.setLayoutParams(new LayoutParams(display.getWidth(), display.getHeight()));
-					imageView.setImageDrawable(Drawable.createFromPath(Environment.getExternalStorageDirectory() + "/testing.jpg"));
+					imageView.setImageDrawable(Drawable.createFromPath(path));
 					addPage(imageView);
 				}
 			}
