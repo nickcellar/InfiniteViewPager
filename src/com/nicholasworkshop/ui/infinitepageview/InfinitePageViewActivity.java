@@ -14,7 +14,7 @@ public class InfinitePageViewActivity extends Activity {
 		setContentView(R.layout.main);
 		InfinitePageView mInfinitePageView = (InfinitePageView) findViewById(R.id.infinitePageView1);
 		
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 3; i++) {
 			TextView textView = new TextView(this);
 			textView.setText("Bonjour PAUG " + i);
 			textView.setBackgroundColor(Color.BLUE);

@@ -60,27 +60,30 @@ public class InfinitePageView extends ViewPager {
 		@Override public void onPageScrollStateChanged(int state) {
 
 			if (state == ViewPager.SCROLL_STATE_IDLE) {
-				switch (mDirection) {
-				case LEFT:
-					View lastView = mViews.getLast().getChildAt(0);
-					mViews.getLast().removeAllViews();
-					for (int i = mViews.size() - 1; i > 0; i--) {
-						View view = mViews.get(i - 1).getChildAt(0);
-						mViews.get(i - 1).removeAllViews();
-						mViews.get(i).addView(view);
+				do {
+					switch (mDirection) {
+					case LEFT:
+						View lastView = mViews.getLast().getChildAt(0);
+						mViews.getLast().removeAllViews();
+						for (int i = mViews.size() - 1; i > 0; i--) {
+							View view = mViews.get(i - 1).getChildAt(0);
+							mViews.get(i - 1).removeAllViews();
+							mViews.get(i).addView(view);
+						}
+						mViews.getFirst().addView(lastView);
+						break;
+					case RIGHT:
+						View firstView = mViews.getFirst().getChildAt(0);
+						mViews.getFirst().removeAllViews();
+						for (int i = 0; i < mViews.size() - 1; i++) {
+							View view = mViews.get(i + 1).getChildAt(0);
+							mViews.get(i + 1).removeAllViews();
+							mViews.get(i).addView(view);
+						}
+						mViews.getLast().addView(firstView);
 					}
-					mViews.getFirst().addView(lastView);
-					break;
-				case RIGHT:
-					View firstView = mViews.getFirst().getChildAt(0);
-					mViews.getFirst().removeAllViews();
-					for (int i = 0; i < mViews.size() - 1; i++) {
-						View view = mViews.get(i + 1).getChildAt(0);
-						mViews.get(i + 1).removeAllViews();
-						mViews.get(i).addView(view);
-					}
-					mViews.getLast().addView(firstView);
-				}
+				} 
+				while (mViews.get(1).getChildAt(0).getTag() != null);
 				InfinitePageView.this.setCurrentItem(1, false);
 			}
 		}
@@ -96,7 +99,7 @@ public class InfinitePageView extends ViewPager {
 					mViews.get(i).getChildAt(0).setDrawingCacheEnabled(true);
 					mViews.get(i).getChildAt(0).buildDrawingCache();
 					Bitmap b = mViews.get(i).getChildAt(0).getDrawingCache();
-					String path = Environment.getExternalStorageDirectory() + "/.nicholasworkshop/cache/" + b.hashCode() + ".jpg"; 
+					String path = Environment.getExternalStorageDirectory() + "/.nicholasworkshop/cache/" + b.hashCode() + ".jpg";
 					new File(Environment.getExternalStorageDirectory() + "/.nicholasworkshop/cache/").mkdirs();
 					try {
 						b.compress(CompressFormat.JPEG, 95, new FileOutputStream(path));
@@ -108,6 +111,7 @@ public class InfinitePageView extends ViewPager {
 					imageView.setScaleType(ImageView.ScaleType.FIT_START);
 					imageView.setLayoutParams(new LayoutParams(display.getWidth(), display.getHeight()));
 					imageView.setImageDrawable(Drawable.createFromPath(path));
+					imageView.setTag(i);
 					addPage(imageView);
 				}
 			}
