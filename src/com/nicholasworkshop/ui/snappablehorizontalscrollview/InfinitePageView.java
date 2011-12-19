@@ -1,4 +1,4 @@
-package com.nicholasworkshop.ui.infinitepageview;
+package com.nicholasworkshop.ui.snappablehorizontalscrollview;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,6 +15,7 @@ import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -26,13 +27,6 @@ public class InfinitePageView extends ViewPager {
 
 	public InfinitePageView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		this.setAdapter(mPageViewAdapter);
-		this.setCurrentItem(1, false);
-		this.setOnPageChangeListener(mOnPageChangeListener);
-	}
-
-	public InfinitePageView(Context context) {
-		super(context);
 		this.setAdapter(mPageViewAdapter);
 		this.setCurrentItem(1, false);
 		this.setOnPageChangeListener(mOnPageChangeListener);
@@ -82,8 +76,7 @@ public class InfinitePageView extends ViewPager {
 						}
 						mViews.getLast().addView(firstView);
 					}
-				} 
-				while (mViews.get(1).getChildAt(0).getTag() != null);
+				} while (mViews.get(1).getChildAt(0).getTag() != null);
 				InfinitePageView.this.setCurrentItem(1, false);
 			}
 		}
@@ -119,6 +112,8 @@ public class InfinitePageView extends ViewPager {
 		}
 
 		@Override public Object instantiateItem(View collection, int position) {
+			Log.d("Nicholas", "Error" + position);
+			if (mViews.size() == 0) return null;
 			((ViewPager) collection).addView(mViews.get(position));
 			return mViews.get(position);
 		}

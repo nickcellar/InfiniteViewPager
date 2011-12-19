@@ -1,4 +1,4 @@
-package com.nicholasworkshop.ui.infinitepageview;
+package com.nicholasworkshop.ui.snappablehorizontalscrollview;
 
 import android.app.Activity;
 import android.graphics.Color;
