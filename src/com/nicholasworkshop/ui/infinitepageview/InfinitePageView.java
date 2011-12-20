@@ -1,4 +1,4 @@
-package com.nicholasworkshop.ui.snappablehorizontalscrollview;
+package com.nicholasworkshop.ui.infinitepageview;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,6 +22,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 public class InfinitePageView extends ViewPager {
+
+	private final String CACHE_DIR = Environment.getExternalStorageDirectory() + "/.nicholasworkshop/cache/";
 
 	private LinkedList<FrameLayout> mViews = new LinkedList<FrameLayout>();
 
@@ -79,21 +81,43 @@ public class InfinitePageView extends ViewPager {
 				} while (mViews.get(1).getChildAt(0).getTag() != null);
 				InfinitePageView.this.setCurrentItem(1, false);
 			}
-		}
-	};
-
-	private PagerAdapter mPageViewAdapter = new PagerAdapter() {
-
-		@Override public int getCount() {
-			if (mViews.size() == 1 || mViews.size() == 2) {
+			/*
+			else if (state == ViewPager.SCROLL_STATE_DRAGGING && mCompensateModeCount > 0) {
 				for (int i = 0; i < 2; i++) {
 					Display display = ((Activity) getContext()).getWindowManager().getDefaultDisplay();
 					mViews.get(i).getChildAt(0).layout(0, 0, display.getWidth(), display.getHeight());
 					mViews.get(i).getChildAt(0).setDrawingCacheEnabled(true);
 					mViews.get(i).getChildAt(0).buildDrawingCache();
 					Bitmap b = mViews.get(i).getChildAt(0).getDrawingCache();
-					String path = Environment.getExternalStorageDirectory() + "/.nicholasworkshop/cache/" + b.hashCode() + ".jpg";
-					new File(Environment.getExternalStorageDirectory() + "/.nicholasworkshop/cache/").mkdirs();
+					String path = CACHE_DIR + i + ".jpg";
+					try {
+						b.compress(CompressFormat.JPEG, 95, new FileOutputStream(path));
+					}
+					catch (FileNotFoundException e) {
+						e.printStackTrace();
+					}
+					((ImageView) mViews.get(mCompensateModeCount + i).getChildAt(0)).setImageDrawable(Drawable.createFromPath(path));
+				}
+			}
+			*/
+		}
+	};
+
+	private int mCompensateModeCount = 0;
+
+	private PagerAdapter mPageViewAdapter = new PagerAdapter() {
+
+		@Override public int getCount() {
+			if (mViews.size() == 1 || mViews.size() == 2) {
+				mCompensateModeCount = mViews.size();
+				for (int i = 0; i < 2; i++) {
+					Display display = ((Activity) getContext()).getWindowManager().getDefaultDisplay();
+					mViews.get(i).getChildAt(0).layout(0, 0, display.getWidth(), display.getHeight());
+					mViews.get(i).getChildAt(0).setDrawingCacheEnabled(true);
+					mViews.get(i).getChildAt(0).buildDrawingCache();
+					Bitmap b = mViews.get(i).getChildAt(0).getDrawingCache();
+					String path = CACHE_DIR + i + ".jpg";
+					new File(CACHE_DIR).mkdirs();
 					try {
 						b.compress(CompressFormat.JPEG, 95, new FileOutputStream(path));
 					}
