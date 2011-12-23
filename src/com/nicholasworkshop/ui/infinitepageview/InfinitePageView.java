@@ -28,11 +28,13 @@ public class InfinitePageView extends ViewPager {
 	private LinkedList<String> mViewTitles = new LinkedList<String>();
 	private LinkedList<FrameLayout> mViews = new LinkedList<FrameLayout>();
 
+	private InfinitePageListener mInfinitePageListener;
+
 	public InfinitePageView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		this.setAdapter(mPageViewAdapter);
+		this.setOnPageChangeListener(mOnPageChangeListener);
 		if (ENABLED) this.setCurrentItem(1, false);
-		if (ENABLED) this.setOnPageChangeListener(mOnPageChangeListener);
 	}
 
 	public void addPage(String title, View view) {
@@ -41,7 +43,7 @@ public class InfinitePageView extends ViewPager {
 		mViews.add(frameLayout);
 		mViewTitles.add(title);
 	}
-	
+
 	public void addPage(View view) {
 		addPage("Untitled", view);
 	}
@@ -49,22 +51,37 @@ public class InfinitePageView extends ViewPager {
 	public String[] getTitles() {
 		return mViewTitles.toArray(new String[1]);
 	}
-	
+
+	public void setListener(InfinitePageListener listener) {
+		mInfinitePageListener = listener;
+	}
+
 	private ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
 
 		private int mDirection;
+		private int mCurrent = (ENABLED) ? 1 : 0;
 
 		private final int LEFT = 0;
 		private final int RIGHT = 2;
 
 		@Override public void onPageSelected(int position) {
 			mDirection = position;
+			if (ENABLED) {
+				mCurrent += (mDirection == LEFT) ? -1 : 1;
+				mCurrent %= mViews.size();
+			}
+			else {
+				mCurrent = position;
+			}
+			mInfinitePageListener.onPageChanged(mCurrent);
 		}
 
 		@Override public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
 
 		@Override public void onPageScrollStateChanged(int state) {
-
+			
+			if (!ENABLED) return;
+			
 			if (state == ViewPager.SCROLL_STATE_IDLE) {
 				do {
 					switch (mDirection) {
@@ -121,8 +138,7 @@ public class InfinitePageView extends ViewPager {
 
 		@Override public int getCount() {
 
-			if (!ENABLED)
-				return mViews.size();
+			if (!ENABLED) return mViews.size();
 			else {
 				if (mViews.size() == 1 || mViews.size() == 2) {
 					mCompensateModeCount = mViews.size();
