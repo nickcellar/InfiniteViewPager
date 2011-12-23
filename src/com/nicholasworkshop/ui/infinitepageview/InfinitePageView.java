@@ -25,6 +25,7 @@ public class InfinitePageView extends ViewPager {
 	private final boolean ENABLED = false;
 	private final String CACHE_DIR = Environment.getExternalStorageDirectory() + "/.nicholasworkshop/cache/";
 
+	private LinkedList<String> mViewTitles = new LinkedList<String>();
 	private LinkedList<FrameLayout> mViews = new LinkedList<FrameLayout>();
 
 	public InfinitePageView(Context context, AttributeSet attrs) {
@@ -34,12 +35,21 @@ public class InfinitePageView extends ViewPager {
 		if (ENABLED) this.setOnPageChangeListener(mOnPageChangeListener);
 	}
 
-	public void addPage(View view) {
+	public void addPage(String title, View view) {
 		FrameLayout frameLayout = new FrameLayout(this.getContext());
 		frameLayout.addView(view);
 		mViews.add(frameLayout);
+		mViewTitles.add(title);
+	}
+	
+	public void addPage(View view) {
+		addPage("Untitled", view);
 	}
 
+	public String[] getTitles() {
+		return mViewTitles.toArray(new String[1]);
+	}
+	
 	private ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
 
 		private int mDirection;
