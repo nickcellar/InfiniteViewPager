@@ -171,9 +171,13 @@ public class InfinitePageView extends ViewPager
 						catch (FileNotFoundException e) {
 							e.printStackTrace();
 						}
+						LayoutParams layout = new LayoutParams();
+						layout.height = display.getHeight();
+						layout.width = display.getWidth();
+
 						ImageView imageView = new ImageView(getContext());
 						imageView.setScaleType(ImageView.ScaleType.FIT_START);
-						imageView.setLayoutParams(new LayoutParams(display.getWidth(), display.getHeight()));
+						imageView.setLayoutParams(layout);
 						imageView.setImageDrawable(Drawable.createFromPath(path));
 						imageView.setTag(i);
 						mCompensateImageViews[i] = imageView;
