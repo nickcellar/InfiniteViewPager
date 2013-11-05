@@ -5,7 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.nicholasworkshop.ui.InfinitePageView;
+import com.nicholasworkshop.ui.InfiniteViewPager;
 
 public class MainActivity extends Activity
 {
@@ -14,7 +14,7 @@ public class MainActivity extends Activity
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		InfinitePageView mInfinitePageView = (InfinitePageView) findViewById(R.id.InfinitePageView);
+		InfiniteViewPager mInfinitePageView = (InfiniteViewPager) findViewById(R.id.InfinitePageView);
 
 		for (int i = 0; i < 3; i++) {
 			TextView textView = new TextView(this);

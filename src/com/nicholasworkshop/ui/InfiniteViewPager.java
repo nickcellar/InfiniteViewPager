@@ -19,7 +19,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-public class InfinitePageView extends ViewPager implements OnPageChangeListener
+public class InfiniteViewPager extends ViewPager implements OnPageChangeListener
 {
 	private int mCompensateModeCount = 0;
 
@@ -40,7 +40,7 @@ public class InfinitePageView extends ViewPager implements OnPageChangeListener
 																		// type.
 	private LinkedList<FrameLayout> mViews = new LinkedList<FrameLayout>();
 
-	private InfinitePageListener mInfinitePageListener;
+	private InfinitePagerListener mInfinitePageListener;
 
 	/**
 	 * Constructor
@@ -48,7 +48,7 @@ public class InfinitePageView extends ViewPager implements OnPageChangeListener
 	 * @param context
 	 * @param attrs
 	 */
-	public InfinitePageView(Context context, AttributeSet attrs)
+	public InfiniteViewPager(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
 		super.setOnPageChangeListener(this); // add one in local
@@ -115,7 +115,7 @@ public class InfinitePageView extends ViewPager implements OnPageChangeListener
 	 * 
 	 * @param listener
 	 */
-	public void setListener(InfinitePageListener listener)
+	public void setListener(InfinitePagerListener listener)
 	{
 		mInfinitePageListener = listener;
 	}
@@ -182,7 +182,7 @@ public class InfinitePageView extends ViewPager implements OnPageChangeListener
 					mViews.getLast().addView(firstView);
 			}
 		} while (mViews.get(1).getChildAt(0).getTag() != null);
-		InfinitePageView.this.setCurrentItem(1, false);
+		InfiniteViewPager.this.setCurrentItem(1, false);
 	}
 
 	private void onPagerDragging()
