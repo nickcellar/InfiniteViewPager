@@ -5,7 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.nicholasworkshop.ui.infinitepageview.InfinitePageView;
+import com.nicholasworkshop.ui.InfinitePageView;
 
 public class MainActivity extends Activity
 {

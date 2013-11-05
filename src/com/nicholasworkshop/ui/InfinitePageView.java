@@ -1,4 +1,4 @@
-package com.nicholasworkshop.ui.infinitepageview;
+package com.nicholasworkshop.ui;
 
 import java.io.File;
 import java.io.FileNotFoundException;
