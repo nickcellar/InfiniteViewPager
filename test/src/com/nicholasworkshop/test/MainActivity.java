@@ -1,17 +1,22 @@
-package com.nicholasworkshop.ui.infinitepageview;
+package com.nicholasworkshop.test;
 
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.TextView;
 
-public class InfinitePageViewActivity extends Activity {
+import com.nicholasworkshop.ui.infinitepageview.InfinitePageView;
 
-	@Override public void onCreate(Bundle savedInstanceState) {
+public class MainActivity extends Activity
+{
+
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		InfinitePageView mInfinitePageView = (InfinitePageView) findViewById(R.id.infinitePageView1);
-		
+		InfinitePageView mInfinitePageView = (InfinitePageView) findViewById(R.id.InfinitePageView);
+
 		for (int i = 0; i < 3; i++) {
 			TextView textView = new TextView(this);
 			textView.setText("Bonjour PAUG " + i);
