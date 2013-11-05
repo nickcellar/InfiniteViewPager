@@ -20,8 +20,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-public class InfinitePageView extends ViewPager {
-
+public class InfinitePageView extends ViewPager
+{
 	private final boolean ENABLED = false;
 	private final String CACHE_DIR = Environment.getExternalStorageDirectory() + "/.nicholasworkshop/cache/";
 
@@ -30,29 +30,34 @@ public class InfinitePageView extends ViewPager {
 
 	private InfinitePageListener mInfinitePageListener;
 
-	public InfinitePageView(Context context, AttributeSet attrs) {
+	public InfinitePageView(Context context, AttributeSet attrs)
+	{
 		super(context, attrs);
 		this.setAdapter(mPageViewAdapter);
 		this.setOnPageChangeListener(mOnPageChangeListener);
 		if (ENABLED) this.setCurrentItem(1, false);
 	}
 
-	public void addPage(String title, View view) {
+	public void addPage(String title, View view)
+	{
 		FrameLayout frameLayout = new FrameLayout(this.getContext());
 		frameLayout.addView(view);
 		mViews.add(frameLayout);
 		mViewTitles.add(title);
 	}
 
-	public void addPage(View view) {
+	public void addPage(View view)
+	{
 		addPage("Untitled", view);
 	}
 
-	public String[] getTitles() {
+	public String[] getTitles()
+	{
 		return mViewTitles.toArray(new String[1]);
 	}
 
-	public void setListener(InfinitePageListener listener) {
+	public void setListener(InfinitePageListener listener)
+	{
 		mInfinitePageListener = listener;
 	}
 
@@ -64,7 +69,9 @@ public class InfinitePageView extends ViewPager {
 		private final int LEFT = 0;
 		private final int RIGHT = 2;
 
-		@Override public void onPageSelected(int position) {
+		@Override
+		public void onPageSelected(int position)
+		{
 			mDirection = position;
 			if (ENABLED) {
 				mCurrent += (mDirection == LEFT) ? -1 : 1;
@@ -73,37 +80,41 @@ public class InfinitePageView extends ViewPager {
 			else {
 				mCurrent = position;
 			}
-			mInfinitePageListener.onPageChanged(mCurrent);
+			if (mInfinitePageListener != null) mInfinitePageListener.onPageChanged(mCurrent);
 		}
 
-		@Override public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+		@Override
+		public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+		{}
 
-		@Override public void onPageScrollStateChanged(int state) {
-			
+		@Override
+		public void onPageScrollStateChanged(int state)
+		{
+
 			if (!ENABLED) return;
-			
+
 			if (state == ViewPager.SCROLL_STATE_IDLE) {
 				do {
 					switch (mDirection) {
-					case LEFT:
-						View lastView = mViews.getLast().getChildAt(0);
-						mViews.getLast().removeAllViews();
-						for (int i = mViews.size() - 1; i > 0; i--) {
-							View view = mViews.get(i - 1).getChildAt(0);
-							mViews.get(i - 1).removeAllViews();
-							mViews.get(i).addView(view);
-						}
-						mViews.getFirst().addView(lastView);
-						break;
-					case RIGHT:
-						View firstView = mViews.getFirst().getChildAt(0);
-						mViews.getFirst().removeAllViews();
-						for (int i = 0; i < mViews.size() - 1; i++) {
-							View view = mViews.get(i + 1).getChildAt(0);
-							mViews.get(i + 1).removeAllViews();
-							mViews.get(i).addView(view);
-						}
-						mViews.getLast().addView(firstView);
+						case LEFT:
+							View lastView = mViews.getLast().getChildAt(0);
+							mViews.getLast().removeAllViews();
+							for (int i = mViews.size() - 1; i > 0; i--) {
+								View view = mViews.get(i - 1).getChildAt(0);
+								mViews.get(i - 1).removeAllViews();
+								mViews.get(i).addView(view);
+							}
+							mViews.getFirst().addView(lastView);
+							break;
+						case RIGHT:
+							View firstView = mViews.getFirst().getChildAt(0);
+							mViews.getFirst().removeAllViews();
+							for (int i = 0; i < mViews.size() - 1; i++) {
+								View view = mViews.get(i + 1).getChildAt(0);
+								mViews.get(i + 1).removeAllViews();
+								mViews.get(i).addView(view);
+							}
+							mViews.getLast().addView(firstView);
 					}
 				} while (mViews.get(1).getChildAt(0).getTag() != null);
 				InfinitePageView.this.setCurrentItem(1, false);
@@ -136,7 +147,9 @@ public class InfinitePageView extends ViewPager {
 
 	private PagerAdapter mPageViewAdapter = new PagerAdapter() {
 
-		@Override public int getCount() {
+		@Override
+		public int getCount()
+		{
 
 			if (!ENABLED) return mViews.size();
 			else {
@@ -171,29 +184,43 @@ public class InfinitePageView extends ViewPager {
 			}
 		}
 
-		@Override public Object instantiateItem(View collection, int position) {
+		@Override
+		public Object instantiateItem(View collection, int position)
+		{
 			if (mViews.size() == 0) return null;
 			((ViewPager) collection).addView(mViews.get(position));
 			return mViews.get(position);
 		}
 
-		@Override public void destroyItem(View collection, int position, Object view) {
+		@Override
+		public void destroyItem(View collection, int position, Object view)
+		{
 			((ViewPager) collection).removeView((FrameLayout) view);
 		}
 
-		@Override public boolean isViewFromObject(View view, Object object) {
+		@Override
+		public boolean isViewFromObject(View view, Object object)
+		{
 			return view == ((FrameLayout) object);
 		}
 
-		@Override public void finishUpdate(View arg0) {}
+		@Override
+		public void finishUpdate(View arg0)
+		{}
 
-		@Override public void restoreState(Parcelable arg0, ClassLoader arg1) {}
+		@Override
+		public void restoreState(Parcelable arg0, ClassLoader arg1)
+		{}
 
-		@Override public Parcelable saveState() {
+		@Override
+		public Parcelable saveState()
+		{
 			return null;
 		}
 
-		@Override public void startUpdate(View arg0) {}
+		@Override
+		public void startUpdate(View arg0)
+		{}
 
 	};
 
