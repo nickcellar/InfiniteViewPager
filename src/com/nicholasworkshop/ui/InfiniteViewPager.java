@@ -19,7 +19,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-public class InfiniteViewPager extends ViewPager implements OnPageChangeListener
+public class InfiniteViewPager extends ViewPager
 {
 	private int mCompensateModeCount = 0;
 
@@ -48,7 +48,10 @@ public class InfiniteViewPager extends ViewPager implements OnPageChangeListener
 	public InfiniteViewPager(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
-		super.setOnPageChangeListener(this); // add one in local
+		super.setOnPageChangeListener(new InfiniteOnPageChangeListener()); // add
+																			// one
+																			// in
+																			// local
 		this.setAdapter(mPageViewAdapter);
 		this.setCurrentItem(1, false);
 		this.mPageViewAdapter = new InfinitePagerAdapter(this);
@@ -126,81 +129,80 @@ public class InfiniteViewPager extends ViewPager implements OnPageChangeListener
 	// OnPageChangeListener
 	// ===================================================
 
-	/**
-	 * Whenever a page is selected (scrolled to), updated the current direction.
-	 */
-	@Override
-	public void onPageSelected(int position)
+	class InfiniteOnPageChangeListener implements OnPageChangeListener
 	{
-		mDirection = position;
-		mCurrent += (mDirection == LEFT) ? -1 : 1;
-		if (mViews.size() != 0) mCurrent %= mViews.size();
-		if (mInfinitePageListener != null) mInfinitePageListener.onPageChanged(mCurrent);
-	}
-
-	@Override
-	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
-	{
-
-	}
-
-	/**
-	 * Handle the events when pager is scrolling or not.
-	 */
-	@Override
-	public void onPageScrollStateChanged(int state)
-	{
-		if (state == ViewPager.SCROLL_STATE_IDLE) onPagerIdle();
-		else if (state == ViewPager.SCROLL_STATE_DRAGGING) onPagerDragging();
-	}
-
-	private void onPagerIdle()
-	{
-		do {
-			switch (mDirection) {
-				case LEFT:
-					View lastView = mViews.getLast().getChildAt(0);
-					mViews.getLast().removeAllViews();
-					for (int i = mViews.size() - 1; i > 0; i--) {
-						View view = mViews.get(i - 1).getChildAt(0);
-						mViews.get(i - 1).removeAllViews();
-						mViews.get(i).addView(view);
-					}
-					mViews.getFirst().addView(lastView);
-					break;
-				case RIGHT:
-					View firstView = mViews.getFirst().getChildAt(0);
-					mViews.getFirst().removeAllViews();
-					for (int i = 0; i < mViews.size() - 1; i++) {
-						View view = mViews.get(i + 1).getChildAt(0);
-						mViews.get(i + 1).removeAllViews();
-						mViews.get(i).addView(view);
-					}
-					mViews.getLast().addView(firstView);
-			}
-		} while (mViews.get(1).getChildAt(0).getTag() != null);
-		InfiniteViewPager.this.setCurrentItem(1, false);
-	}
-
-	private void onPagerDragging()
-	{
-		if (mCompensateModeCount <= 0) return;
-		for (int i = 0; i < 2; i++) {
-			Display display = ((Activity) getContext()).getWindowManager().getDefaultDisplay();
-			mViews.get(i).getChildAt(0).layout(0, 0, display.getWidth(), display.getHeight());
-			mViews.get(i).getChildAt(0).setDrawingCacheEnabled(true);
-			mViews.get(i).getChildAt(0).buildDrawingCache();
-			Bitmap b = mViews.get(i).getChildAt(0).getDrawingCache();
-			// todo: use png
-			File file = new File(getContext().getCacheDir(), i + "jpg");
-			try {
-				b.compress(CompressFormat.JPEG, 95, new FileOutputStream(file));
-			}
-			catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-			mCompensateImageViews[i].setImageDrawable(Drawable.createFromPath(file.getAbsolutePath()));
+		/**
+		 * Whenever a page is selected (scrolled to), updated the current
+		 * direction.
+		 */
+		public void onPageSelected(int position)
+		{
+			mDirection = position;
+			mCurrent += (mDirection == LEFT) ? -1 : 1;
+			if (mViews.size() != 0) mCurrent %= mViews.size();
+			if (mInfinitePageListener != null) mInfinitePageListener.onPageChanged(mCurrent);
 		}
-	}
 
+		public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+		{}
+
+		/**
+		 * Handle the events when pager is scrolling or not.
+		 */
+		public void onPageScrollStateChanged(int state)
+		{
+			if (state == ViewPager.SCROLL_STATE_IDLE) onPagerIdle();
+			else if (state == ViewPager.SCROLL_STATE_DRAGGING) onPagerDragging();
+		}
+
+		private void onPagerIdle()
+		{
+			do {
+				switch (mDirection) {
+					case LEFT:
+						View lastView = mViews.getLast().getChildAt(0);
+						mViews.getLast().removeAllViews();
+						for (int i = mViews.size() - 1; i > 0; i--) {
+							View view = mViews.get(i - 1).getChildAt(0);
+							mViews.get(i - 1).removeAllViews();
+							mViews.get(i).addView(view);
+						}
+						mViews.getFirst().addView(lastView);
+						break;
+					case RIGHT:
+						View firstView = mViews.getFirst().getChildAt(0);
+						mViews.getFirst().removeAllViews();
+						for (int i = 0; i < mViews.size() - 1; i++) {
+							View view = mViews.get(i + 1).getChildAt(0);
+							mViews.get(i + 1).removeAllViews();
+							mViews.get(i).addView(view);
+						}
+						mViews.getLast().addView(firstView);
+				}
+			} while (mViews.get(1).getChildAt(0).getTag() != null);
+			InfiniteViewPager.this.setCurrentItem(1, false);
+		}
+
+		private void onPagerDragging()
+		{
+			if (mCompensateModeCount <= 0) return;
+			for (int i = 0; i < 2; i++) {
+				Display display = ((Activity) getContext()).getWindowManager().getDefaultDisplay();
+				mViews.get(i).getChildAt(0).layout(0, 0, display.getWidth(), display.getHeight());
+				mViews.get(i).getChildAt(0).setDrawingCacheEnabled(true);
+				mViews.get(i).getChildAt(0).buildDrawingCache();
+				Bitmap b = mViews.get(i).getChildAt(0).getDrawingCache();
+				// todo: use png
+				File file = new File(getContext().getCacheDir(), i + "jpg");
+				try {
+					b.compress(CompressFormat.JPEG, 95, new FileOutputStream(file));
+				}
+				catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+				mCompensateImageViews[i].setImageDrawable(Drawable.createFromPath(file.getAbsolutePath()));
+			}
+		}
+
+	}
 }
