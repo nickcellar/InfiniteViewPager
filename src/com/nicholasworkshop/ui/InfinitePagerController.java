@@ -11,33 +11,47 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.LayoutParams;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.Display;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-public class InfinitePagerAdapter extends PagerAdapter
+public class InfinitePagerController extends PagerAdapter implements OnPageChangeListener
 {
+	private int mCompensateModeCount = 0;
+
+	private int mDirection;
+	private int mCurrent = 1;
+
+	private final int LEFT = 0;
+	private final int RIGHT = 2;
 	/**
 	 * Instance of the view pager.
 	 */
 	private InfiniteViewPager mViewPager;
 
-	public InfinitePagerAdapter(InfiniteViewPager pager)
+	/**
+	 * Constructor of a pager adapter.
+	 * 
+	 * @param pager
+	 *        The instance of parent InfiniteViewPager.
+	 */
+	public InfinitePagerController(InfiniteViewPager pager)
 	{
 		mViewPager = pager;
 	}
 
 	/**
-	 * Always return 3.
+	 * Always return 3. Shift the view
 	 * 
-	 * @return
+	 * @return Number of view saved.
 	 */
 	@Override
 	public int getCount()
 	{
 		if (mViewPager.getViewCount() == 1 || mViewPager.getViewCount() == 2) {
-			mViewPager.setCompensateModeCount(mViewPager.getViewCount());
+			mCompensateModeCount = mViewPager.getViewCount();
 			for (int i = 0; i < 2; i++) {
 
 				Display display = ((Activity) mViewPager.getContext()).getWindowManager().getDefaultDisplay();
@@ -109,4 +123,5 @@ public class InfinitePagerAdapter extends PagerAdapter
 	{
 		return view == ((FrameLayout) object);
 	}
+
 }
