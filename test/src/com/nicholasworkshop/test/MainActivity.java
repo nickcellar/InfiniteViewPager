@@ -18,7 +18,7 @@ public class MainActivity extends Activity
 
 		for (int i = 0; i < 3; i++) {
 			TextView textView = new TextView(this);
-			textView.setText("Bonjour PAUG " + i);
+			textView.setText("Bonjour Page " + i);
 			textView.setBackgroundColor(Color.BLUE);
 			textView.setTextColor(Color.WHITE);
 			textView.setTextSize(30);
