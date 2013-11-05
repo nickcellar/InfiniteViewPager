@@ -8,7 +8,6 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.drawable.Drawable;
-import android.os.Environment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.LayoutParams;
@@ -19,8 +18,9 @@ import android.widget.ImageView;
 
 public class InfinitePagerAdapter extends PagerAdapter
 {
-	private final String CACHE_DIR = Environment.getExternalStorageDirectory() + "/.nicholasworkshop/cache/";
-
+	/**
+	 * Instance of the view pager.
+	 */
 	private InfiniteViewPager mViewPager;
 
 	public InfinitePagerAdapter(InfiniteViewPager pager)
@@ -46,10 +46,9 @@ public class InfinitePagerAdapter extends PagerAdapter
 				mViewPager.getViewAt(i).getChildAt(0).buildDrawingCache();
 				Bitmap b = mViewPager.getViewAt(i).getChildAt(0).getDrawingCache();
 
-				String path = CACHE_DIR + i + ".jpg";
-				new File(CACHE_DIR).mkdirs();
+				File file = new File(mViewPager.getContext().getCacheDir(), i + "jpg");
 				try {
-					b.compress(CompressFormat.JPEG, 95, new FileOutputStream(path));
+					b.compress(CompressFormat.JPEG, 95, new FileOutputStream(file));
 				}
 				catch (FileNotFoundException e) {
 					e.printStackTrace();
@@ -61,7 +60,7 @@ public class InfinitePagerAdapter extends PagerAdapter
 				ImageView imageView = new ImageView(mViewPager.getContext());
 				imageView.setScaleType(ImageView.ScaleType.FIT_START);
 				imageView.setLayoutParams(layout);
-				imageView.setImageDrawable(Drawable.createFromPath(path));
+				imageView.setImageDrawable(Drawable.createFromPath(file.getAbsolutePath()));
 				imageView.setTag(i);
 				mViewPager.setCompensateImageView(i, imageView);
 				mViewPager.addPage(imageView);

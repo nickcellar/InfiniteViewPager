@@ -1,5 +1,6 @@
 package com.nicholasworkshop.ui;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.LinkedList;
@@ -9,7 +10,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.drawable.Drawable;
-import android.os.Environment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -32,12 +32,9 @@ public class InfiniteViewPager extends ViewPager implements OnPageChangeListener
 
 	private final int LEFT = 0;
 	private final int RIGHT = 2;
-	private final String CACHE_DIR = Environment.getExternalStorageDirectory() + "/.nicholasworkshop/cache/";
 
-	private LinkedList<String> mViewTitles = new LinkedList<String>(); // todo:
-																		// use
-																		// another
-																		// type.
+	// todo: use another type.
+	private LinkedList<String> mViewTitles = new LinkedList<String>();
 	private LinkedList<FrameLayout> mViews = new LinkedList<FrameLayout>();
 
 	private InfinitePagerListener mInfinitePageListener;
@@ -194,14 +191,15 @@ public class InfiniteViewPager extends ViewPager implements OnPageChangeListener
 			mViews.get(i).getChildAt(0).setDrawingCacheEnabled(true);
 			mViews.get(i).getChildAt(0).buildDrawingCache();
 			Bitmap b = mViews.get(i).getChildAt(0).getDrawingCache();
-			String path = CACHE_DIR + i + ".jpg";
+			// todo: use png
+			File file = new File(getContext().getCacheDir(), i + "jpg");
 			try {
-				b.compress(CompressFormat.JPEG, 95, new FileOutputStream(path));
+				b.compress(CompressFormat.JPEG, 95, new FileOutputStream(file));
 			}
 			catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
-			mCompensateImageViews[i].setImageDrawable(Drawable.createFromPath(path));
+			mCompensateImageViews[i].setImageDrawable(Drawable.createFromPath(file.getAbsolutePath()));
 		}
 	}
 
