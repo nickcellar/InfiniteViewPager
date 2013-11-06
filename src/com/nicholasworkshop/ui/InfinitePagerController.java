@@ -19,6 +19,7 @@ import android.widget.ImageView;
 
 public class InfinitePagerController extends PagerAdapter implements OnPageChangeListener
 {
+	private ImageView[] mCompensateImageViews;
 	private int mCompensateModeCount = 0;
 
 	private int mDirection;
@@ -40,6 +41,7 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
 	public InfinitePagerController(InfiniteViewPager pager)
 	{
 		mViewPager = pager;
+		this.mCompensateImageViews = new ImageView[2];
 	}
 
 	/**
@@ -76,7 +78,7 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
 				imageView.setLayoutParams(layout);
 				imageView.setImageDrawable(Drawable.createFromPath(file.getAbsolutePath()));
 				imageView.setTag(i);
-				mViewPager.setCompensateImageView(i, imageView);
+				mCompensateImageViews[i] = imageView;
 				mViewPager.addPage(imageView);
 			}
 		}
@@ -124,4 +126,81 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
 		return view == ((FrameLayout) object);
 	}
 
+	// ===================================================
+	// OnPageChangeListener
+	// ===================================================
+
+	/**
+	 * Whenever a page is selected (scrolled to), updated the current direction.
+	 */
+	public void onPageSelected(int position)
+	{
+		mDirection = position;
+		mCurrent += (mDirection == LEFT) ? -1 : 1;
+		int count = mViewPager.getViewCount();
+		if (count != 0) mCurrent %= count;
+//		if (mInfinitePageListener != null) mInfinitePageListener.onPageChanged(mCurrent);
+	}
+
+	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+	{}
+
+	/**
+	 * Handle the events when pager is scrolling or not.
+	 */
+	public void onPageScrollStateChanged(int state)
+	{
+		if (state == ViewPager.SCROLL_STATE_IDLE) onPagerIdle();
+		else if (state == ViewPager.SCROLL_STATE_DRAGGING) onPagerDragging();
+	}
+
+	private void onPagerIdle()
+	{
+		do {
+			int lastIndex = mViewPager.getViewCount() - 1;
+			switch (mDirection) {
+				case LEFT:
+					View lastView = mViewPager.getViewAt(lastIndex).getChildAt(0);
+					mViewPager.getViewAt(lastIndex).removeAllViews();
+					for (int i = mViewPager.getViewCount() - 1; i > 0; i--) {
+						View view = mViewPager.getViewAt(i - 1).getChildAt(0);
+						mViewPager.getViewAt(i - 1).removeAllViews();
+						mViewPager.getViewAt(i).addView(view);
+					}
+					mViewPager.getViewAt(0).addView(lastView);
+					break;
+				case RIGHT:
+					View firstView = mViewPager.getViewAt(0).getChildAt(0);
+					mViewPager.getViewAt(0).removeAllViews();
+					for (int i = 0; i < mViewPager.getViewCount() - 1; i++) {
+						View view = mViewPager.getViewAt(i + 1).getChildAt(0);
+						mViewPager.getViewAt(i + 1).removeAllViews();
+						mViewPager.getViewAt(i).addView(view);
+					}
+					mViewPager.getViewAt(lastIndex).addView(firstView);
+			}
+		} while (mViewPager.getViewAt(1).getChildAt(0).getTag() != null);
+		mViewPager.setCurrentItem(1, false);
+	}
+
+	private void onPagerDragging()
+	{
+		if (mCompensateModeCount <= 0) return;
+		for (int i = 0; i < 2; i++) {
+			Display display = ((Activity) mViewPager.getContext()).getWindowManager().getDefaultDisplay();
+			mViewPager.getViewAt(i).getChildAt(0).layout(0, 0, display.getWidth(), display.getHeight());
+			mViewPager.getViewAt(i).getChildAt(0).setDrawingCacheEnabled(true);
+			mViewPager.getViewAt(i).getChildAt(0).buildDrawingCache();
+			Bitmap b = mViewPager.getViewAt(i).getChildAt(0).getDrawingCache();
+			// todo: use png
+			File file = new File(mViewPager.getContext().getCacheDir(), i + "jpg");
+			try {
+				b.compress(CompressFormat.JPEG, 95, new FileOutputStream(file));
+			}
+			catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+			mCompensateImageViews[i].setImageDrawable(Drawable.createFromPath(file.getAbsolutePath()));
+		}
+	}
 }

@@ -21,17 +21,10 @@ import android.widget.ImageView;
 
 public class InfiniteViewPager extends ViewPager
 {
-	private int mCompensateModeCount = 0;
 
 	private ImageView[] mCompensateImageViews;
 
-	private PagerAdapter mPageViewAdapter;
-
-	private int mDirection;
-	private int mCurrent = 1;
-
-	private final int LEFT = 0;
-	private final int RIGHT = 2;
+	private InfinitePagerController mPageViewAdapter;
 
 	// todo: use another type.
 	private LinkedList<String> mViewTitles = new LinkedList<String>();
@@ -48,20 +41,17 @@ public class InfiniteViewPager extends ViewPager
 	public InfiniteViewPager(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
-		super.setOnPageChangeListener(new InfiniteOnPageChangeListener()); // add
-																			// one
-																			// in
-																			// local
+//		this.mCompensateImageViews = new ImageView[2];
+		this.mPageViewAdapter = new InfinitePagerController(this);
+		this.setOnPageChangeListener(mPageViewAdapter);
 		this.setAdapter(mPageViewAdapter);
 		this.setCurrentItem(1, false);
-		this.mPageViewAdapter = new InfinitePagerAdapter(this);
-		this.mCompensateImageViews = new ImageView[2];
 	}
 
-	public void setCompensateImageView(int index, ImageView view)
-	{
-		mCompensateImageViews[index] = view;
-	}
+//	public void setCompensateImageView(int index, ImageView view)
+//	{
+//		mCompensateImageViews[index] = view;
+//	}
 
 	/**
 	 * Function to add a view to this pager. For each view added to this pager,
@@ -120,89 +110,9 @@ public class InfiniteViewPager extends ViewPager
 		mInfinitePageListener = listener;
 	}
 
-	public void setCompensateModeCount(int count)
-	{
-		mCompensateModeCount = count;
-	}
+//	public void setCompensateModeCount(int count)
+//	{
+//		mCompensateModeCount = count;
+//	}
 
-	// ===================================================
-	// OnPageChangeListener
-	// ===================================================
-
-	class InfiniteOnPageChangeListener implements OnPageChangeListener
-	{
-		/**
-		 * Whenever a page is selected (scrolled to), updated the current
-		 * direction.
-		 */
-		public void onPageSelected(int position)
-		{
-			mDirection = position;
-			mCurrent += (mDirection == LEFT) ? -1 : 1;
-			if (mViews.size() != 0) mCurrent %= mViews.size();
-			if (mInfinitePageListener != null) mInfinitePageListener.onPageChanged(mCurrent);
-		}
-
-		public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
-		{}
-
-		/**
-		 * Handle the events when pager is scrolling or not.
-		 */
-		public void onPageScrollStateChanged(int state)
-		{
-			if (state == ViewPager.SCROLL_STATE_IDLE) onPagerIdle();
-			else if (state == ViewPager.SCROLL_STATE_DRAGGING) onPagerDragging();
-		}
-
-		private void onPagerIdle()
-		{
-			do {
-				switch (mDirection) {
-					case LEFT:
-						View lastView = mViews.getLast().getChildAt(0);
-						mViews.getLast().removeAllViews();
-						for (int i = mViews.size() - 1; i > 0; i--) {
-							View view = mViews.get(i - 1).getChildAt(0);
-							mViews.get(i - 1).removeAllViews();
-							mViews.get(i).addView(view);
-						}
-						mViews.getFirst().addView(lastView);
-						break;
-					case RIGHT:
-						View firstView = mViews.getFirst().getChildAt(0);
-						mViews.getFirst().removeAllViews();
-						for (int i = 0; i < mViews.size() - 1; i++) {
-							View view = mViews.get(i + 1).getChildAt(0);
-							mViews.get(i + 1).removeAllViews();
-							mViews.get(i).addView(view);
-						}
-						mViews.getLast().addView(firstView);
-				}
-			} while (mViews.get(1).getChildAt(0).getTag() != null);
-			InfiniteViewPager.this.setCurrentItem(1, false);
-		}
-
-		private void onPagerDragging()
-		{
-			if (mCompensateModeCount <= 0) return;
-			for (int i = 0; i < 2; i++) {
-				Display display = ((Activity) getContext()).getWindowManager().getDefaultDisplay();
-				mViews.get(i).getChildAt(0).layout(0, 0, display.getWidth(), display.getHeight());
-				mViews.get(i).getChildAt(0).setDrawingCacheEnabled(true);
-				mViews.get(i).getChildAt(0).buildDrawingCache();
-				Bitmap b = mViews.get(i).getChildAt(0).getDrawingCache();
-				// todo: use png
-				File file = new File(getContext().getCacheDir(), i + "jpg");
-				try {
-					b.compress(CompressFormat.JPEG, 95, new FileOutputStream(file));
-				}
-				catch (FileNotFoundException e) {
-					e.printStackTrace();
-				}
-				mCompensateImageViews[i].setImageDrawable(Drawable.createFromPath(file.getAbsolutePath()));
-			}
-		}
-
-	}
 }
