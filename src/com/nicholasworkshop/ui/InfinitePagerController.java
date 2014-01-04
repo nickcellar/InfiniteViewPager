@@ -133,7 +133,7 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     @Override
     public Object instantiateItem(ViewGroup container, int position)
     {
-        if (mViewPager.getViewCount() == 0) return null;
+        if (position >= mViewPager.getViewCount()) return null;
         container.addView(mViewPager.getViewAt(position));
         return mViewPager.getViewAt(position);
     }
