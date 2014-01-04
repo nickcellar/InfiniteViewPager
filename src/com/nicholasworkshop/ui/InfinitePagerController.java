@@ -1,17 +1,14 @@
 package com.nicholasworkshop.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.drawable.Drawable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.LayoutParams;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -45,7 +42,7 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
         mViewPager = pager;
     }
 
-    private void onPagerWentIdle()
+    private void shiftViews()
     {
         do {
             int lastIndex = mViewPager.getViewCount() - 1;
@@ -122,7 +119,6 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     @Override
     public int getCount()
     {
-//        shiftViews();
         return 3;
     }
 
@@ -201,7 +197,7 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     @Override
     public void onPageScrollStateChanged(int state)
     {
-        if (state == ViewPager.SCROLL_STATE_IDLE) onPagerWentIdle();
+        if (state == ViewPager.SCROLL_STATE_IDLE) shiftViews();
         else if (state == ViewPager.SCROLL_STATE_DRAGGING) generateDummies();
     }
 }
