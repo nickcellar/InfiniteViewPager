@@ -126,29 +126,29 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     /**
      * Draw the saved views to the display.
      * <p/>
-     * //     * @param collection
+     * //     * @param container
      * //     * @param position
      * //     * @return
      */
     @Override
-    public Object instantiateItem(ViewGroup collection, int position)
+    public Object instantiateItem(ViewGroup container, int position)
     {
         if (mViewPager.getViewCount() == 0) return null;
-        collection.addView(mViewPager.getViewAt(position));
+        container.addView(mViewPager.getViewAt(position));
         return mViewPager.getViewAt(position);
     }
 
     /**
-     * Remove the view from display.
+     * Remove the object from display.
      * <p/>
-     * //     * @param collection
+     * //     * @param container
      * //     * @param position
-     * //     * @param view
+     * //     * @param object
      */
     @Override
-    public void destroyItem(ViewGroup collection, int position, Object view)
+    public void destroyItem(ViewGroup container, int position, Object object)
     {
-        collection.removeView((FrameLayout) view);
+        container.removeView((FrameLayout) object);
     }
 
     /**
