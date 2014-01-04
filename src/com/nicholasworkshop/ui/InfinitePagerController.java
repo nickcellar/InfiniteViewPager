@@ -142,6 +142,7 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
 //		if (mInfinitePageListener != null) mInfinitePageListener.onPageChanged(mCurrent);
 	}
 
+    @Override
 	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
 	{}
 
