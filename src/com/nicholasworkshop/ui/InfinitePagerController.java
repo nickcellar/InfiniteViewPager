@@ -40,8 +40,8 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     public InfinitePagerController(InfiniteViewPager pager)
     {
         mViewPager = pager;
-        for (int i=0; i<3; i++) {
-        FrameLayout frameLayout = new FrameLayout(pager.getContext());
+        for (int i = 0; i < 3; i++) {
+            FrameLayout frameLayout = new FrameLayout(pager.getContext());
 //        frameLayout.addView(view);
 //        pager.add(frameLayout);
         }
@@ -49,41 +49,26 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
 
     public void setPagerListener(InfinitePagerListener listener)
     {
-        mListener= listener;
+        mListener = listener;
     }
 
     private void shiftViews()
     {
-        do {
-            int lastIndex = mViewPager.getViewCount() - 1;
-            switch (mDirection) {
-                case -1:
-                    // left
-                    View lastView = mViewPager.getViewAt(lastIndex).getChildAt(0);
-                    assert lastView != null;
-                    mViewPager.getViewAt(lastIndex).removeAllViews();
-                    for (int i = mViewPager.getViewCount() - 1; i > 0; i--) {
-                        View view = mViewPager.getViewAt(i - 1).getChildAt(0);
-                        assert view != null;
-                        mViewPager.getViewAt(i - 1).removeAllViews();
-                        mViewPager.getViewAt(i).addView(view);
-                    }
-                    mViewPager.getViewAt(0).addView(lastView);
-                    break;
-                case 1:
-                    // right
-                    View firstView = mViewPager.getViewAt(0).getChildAt(0);
-                    assert firstView != null;
-                    mViewPager.getViewAt(0).removeAllViews();
-                    for (int i = 0; i < mViewPager.getViewCount() - 1; i++) {
-                        View view = mViewPager.getViewAt(i + 1).getChildAt(0);
-                        assert view != null;
-                        mViewPager.getViewAt(i + 1).removeAllViews();
-                        mViewPager.getViewAt(i).addView(view);
-                    }
-                    mViewPager.getViewAt(lastIndex).addView(firstView);
-            }
-        } while (mViewPager.getViewAt(1).getChildAt(0).getTag() != null);
+        // temporarily store the views with an array
+        int count = mViewPager.getViewCount();
+        View[] views = new View[count];
+        for (int i = 0; i < count; i++) {
+            ViewGroup group = mViewPager.getViewAt(i);
+            views[i] = group.getChildAt(0);
+            group.removeAllViews();
+        }
+        // put them all back to the new position
+        for (int i = 0; i < count; i++) {
+            ViewGroup group = mViewPager.getViewAt(i);
+            int index = (i + count + mDirection) % count;
+            group.addView(views[index]);
+        }
+        // reset the current position to center
         mViewPager.setCurrentItem(1, false);
     }
 
@@ -196,7 +181,7 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
         mCurrent += mDirection;
         int count = mViewPager.getViewCount();
         if (count != 0) mCurrent %= count;
-		if (mListener != null) mListener.onPageChanged(mCurrent);
+        if (mListener != null) mListener.onPageChanged(mCurrent);
     }
 
     /**
@@ -216,6 +201,6 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     public void onPageScrollStateChanged(int state)
     {
         if (state == ViewPager.SCROLL_STATE_IDLE) shiftViews();
-        else if (state == ViewPager.SCROLL_STATE_DRAGGING) generateDummies();
+//        else if (state == ViewPager.SCROLL_STATE_DRAGGING) generateDummies();
     }
 }
