@@ -1,10 +1,7 @@
 package com.nicholasworkshop.ui;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.drawable.Drawable;
@@ -12,14 +9,23 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.LayoutParams;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 
 public class InfinitePagerController extends PagerAdapter implements OnPageChangeListener
 {
     // 2 views, one left and one right
+    private final String TAG = getClass().getSimpleName();
     private ImageView[] mDummyImageViews = new ImageView[2];
 
     private int mCompensateModeCount = 0;
@@ -37,42 +43,6 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     public InfinitePagerController(InfiniteViewPager pager)
     {
         mViewPager = pager;
-    }
-
-    /**
-     * Shift views.
-     */
-    public void shiftViews()
-    {
-        if (mViewPager.getViewCount() == 1 || mViewPager.getViewCount() == 2) {
-            mCompensateModeCount = mViewPager.getViewCount();
-            for (int i = 0; i < 2; i++) {
-
-                Display display = ((Activity) mViewPager.getContext()).getWindowManager().getDefaultDisplay();
-                mViewPager.getViewAt(i).getChildAt(0).layout(0, 0, display.getWidth(), display.getHeight());
-                mViewPager.getViewAt(i).getChildAt(0).setDrawingCacheEnabled(true);
-                mViewPager.getViewAt(i).getChildAt(0).buildDrawingCache();
-                Bitmap b = mViewPager.getViewAt(i).getChildAt(0).getDrawingCache();
-
-                File file = new File(mViewPager.getContext().getCacheDir(), i + "jpg");
-                try {
-                    b.compress(CompressFormat.JPEG, 95, new FileOutputStream(file));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                LayoutParams layout = new LayoutParams();
-                layout.height = display.getHeight();
-                layout.width = display.getWidth();
-
-                ImageView imageView = new ImageView(mViewPager.getContext());
-                imageView.setScaleType(ImageView.ScaleType.FIT_START);
-                imageView.setLayoutParams(layout);
-                imageView.setImageDrawable(Drawable.createFromPath(file.getAbsolutePath()));
-                imageView.setTag(i);
-                mDummyImageViews[i] = imageView;
-                mViewPager.addPage(imageView);
-            }
-        }
     }
 
     private void onPagerWentIdle()
@@ -104,24 +74,40 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
         mViewPager.setCurrentItem(1, false);
     }
 
-    private void onPagerWentDragging()
+
+    private void generateDummies()
     {
         if (mCompensateModeCount <= 0) return;
+        Log.d(TAG, "Started generating dummies");
+
+        // get display width and height
+        Context context = mViewPager.getContext();
+        assert context != null;
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        int width = metrics.widthPixels;
+        int height = metrics.heightPixels;
+
+        // generate images for each page
         for (int i = 0; i < 2; i++) {
-            Display display = ((Activity) mViewPager.getContext()).getWindowManager().getDefaultDisplay();
-            mViewPager.getViewAt(i).getChildAt(0).layout(0, 0, display.getWidth(), display.getHeight());
-            mViewPager.getViewAt(i).getChildAt(0).setDrawingCacheEnabled(true);
-            mViewPager.getViewAt(i).getChildAt(0).buildDrawingCache();
-            Bitmap b = mViewPager.getViewAt(i).getChildAt(0).getDrawingCache();
-            // todo: use png
-            File file = new File(mViewPager.getContext().getCacheDir(), i + "jpg");
             try {
-                b.compress(CompressFormat.JPEG, 95, new FileOutputStream(file));
-            } catch (FileNotFoundException e) {
+                // image must be build with display size
+                View view = mViewPager.getViewAt(i).getChildAt(0);
+                assert view != null;
+                view.layout(0, 0, width, height);
+                view.setDrawingCacheEnabled(true);
+                view.buildDrawingCache();
+                File file = new File(mViewPager.getContext().getCacheDir(), i + "jpg");
+                Bitmap bitmap = view.getDrawingCache();
+                assert bitmap != null;
+                bitmap.compress(CompressFormat.JPEG, 50, new FileOutputStream(file));
+                mDummyImageViews[i].setImageDrawable(Drawable.createFromPath(file.getAbsolutePath()));
+            }
+            catch (FileNotFoundException e) {
+                // unable to create bitmap file.
                 e.printStackTrace();
             }
-            mDummyImageViews[i].setImageDrawable(Drawable.createFromPath(file.getAbsolutePath()));
         }
+        Log.d(TAG, "Generated dummies");
     }
 
     // ===================================================
@@ -136,18 +122,20 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     @Override
     public int getCount()
     {
+//        shiftViews();
         return 3;
     }
 
     /**
      * Draw the saved views to the display.
-     *
-     * @param collection
-     * @param position
-     * @return
+     * <p/>
+     * //     * @param collection
+     * //     * @param position
+     * //     * @return
      */
+    @Nullable
     @Override
-    public Object instantiateItem(View collection, int position)
+    public Object instantiateItem(@NotNull View collection, int position)
     {
         if (mViewPager.getViewCount() == 0) return null;
         ((ViewPager) collection).addView(mViewPager.getViewAt(position));
@@ -156,28 +144,28 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
 
     /**
      * Remove the view from display.
-     *
-     * @param collection
-     * @param position
-     * @param view
+     * <p/>
+     * //     * @param collection
+     * //     * @param position
+     * //     * @param view
      */
     @Override
-    public void destroyItem(View collection, int position, Object view)
+    public void destroyItem(@NotNull View collection, int position, Object view)
     {
         ((ViewPager) collection).removeView((FrameLayout) view);
     }
 
     /**
      * Check if the view equals the one in saved views.
-     *
-     * @param view
-     * @param object
-     * @return
+     * <p/>
+     * //     * @param view
+     * //     * @param object
+     * //     * @return
      */
     @Override
     public boolean isViewFromObject(View view, Object object)
     {
-        return view == ((FrameLayout) object);
+        return view == object;
     }
 
     // ===================================================
@@ -198,9 +186,9 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     }
 
     /**
-     * @param position
-     * @param positionOffset
-     * @param positionOffsetPixels
+     * //     * @param position
+     * //     * @param positionOffset
+     * //     * @param positionOffsetPixels
      */
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
@@ -214,6 +202,6 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     public void onPageScrollStateChanged(int state)
     {
         if (state == ViewPager.SCROLL_STATE_IDLE) onPagerWentIdle();
-        else if (state == ViewPager.SCROLL_STATE_DRAGGING) onPagerWentDragging();
+        else if (state == ViewPager.SCROLL_STATE_DRAGGING) generateDummies();
     }
 }
