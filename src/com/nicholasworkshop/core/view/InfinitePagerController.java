@@ -1,4 +1,4 @@
-package com.nicholasworkshop.ui;
+package com.nicholasworkshop.core.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;

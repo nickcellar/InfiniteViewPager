@@ -1,4 +1,4 @@
-package com.nicholasworkshop.ui;
+package com.nicholasworkshop.core.view;
 
 public abstract class InfinitePagerListener
 {
