@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 import com.nicholasworkshop.core.view.InfiniteViewPager;
 
-public class MainActivity extends Activity
+public class InfiniteViewPagerTestActivity extends Activity
 {
     @Override
     public void onCreate(Bundle savedInstanceState)
