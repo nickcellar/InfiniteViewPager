@@ -16,24 +16,16 @@ public class InfiniteViewPagerTestActivity extends Activity
         setContentView(R.layout.main);
         InfiniteViewPager mInfinitePageView = (InfiniteViewPager) findViewById(R.id.InfinitePageView);
 
+        int[] colors = new int[]{Color.RED, Color.BLUE, Color.GREEN};
+
         for (int i = 0; i < 1; i++) {
-            TextView textView = new TextView(this);
-            textView.setText("" + i);
-            textView.setTextColor(Color.WHITE);
-            textView.setTextSize(128);
-            textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-            switch (i % 3) {
-                case 0:
-                    textView.setBackgroundColor(Color.RED);
-                    break;
-                case 1:
-                    textView.setBackgroundColor(Color.BLUE);
-                    break;
-                case 2:
-                    textView.setBackgroundColor(Color.GREEN);
-                    break;
-            }
-            mInfinitePageView.addPage(textView);
+            TextView view = new TextView(this);
+            view.setText(String.valueOf(i));
+            view.setTextColor(Color.WHITE);
+            view.setTextSize(128);
+            view.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+            view.setBackgroundColor(colors[i % colors.length]);
+            mInfinitePageView.addPage(view);
         }
     }
 }
