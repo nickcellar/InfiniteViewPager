@@ -2,10 +2,12 @@ package com.nicholasworkshop.core.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -15,7 +17,6 @@ import android.widget.TextView;
 
 public class InfinitePagerController extends PagerAdapter implements OnPageChangeListener
 {
-    private final String TAG = getClass().getSimpleName();
     private int mCurrent = 0;
     private InfiniteViewPager mViewPager;
     private InfinitePagerListener mListener;
@@ -30,16 +31,25 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     {
         // store the instance of view pager
         mViewPager = pager;
+        mViewPager.setOnPageChangeListener(this);
+
+        // get context from pager
+        Context context = mViewPager.getContext();
+        assert context != null;
 
         // ensure that pager only has 3 views
-        pager.removeAllViews();
-        Context context = pager.getContext();
-        assert context != null;
+        mViewPager.removeAllViews();
         for (int i = 0; i < 3; i++) {
+
+            // add loading message to each frame
+            TextView view = new TextView(context);
+            view.setText("loading");
+            view.setTextSize(64);
+            view.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+
+            // create frame
             mFrames[i] = new FrameLayout(context);
-            TextView tv = new TextView(context);
-            tv.setText("Page" + i);
-            mFrames[i].addView(tv);
+            mFrames[i].addView(view);
             pager.addView(mFrames[i]);
         }
     }
@@ -60,15 +70,18 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
         // fill views into frames
         int count = mViewPager.getViewCount();
         for (int i = 0; i < 3; i++) {
+
+            // get the view
             int index = (mCurrent + i - 1 + count) % count;
-            Log.w(TAG, "Frame " + i + " -> View " + index);
             View view = mViewPager.getViewAt(index);
             ViewParent parent = view.getParent();
+
             if (parent != null) {
                 // if view has parent, fill it with generated dummy
                 ImageView dummy = generateDummy(view);
                 mFrames[i].addView(dummy);
             } else {
+                // else just add the view
                 mFrames[i].addView(view);
             }
         }

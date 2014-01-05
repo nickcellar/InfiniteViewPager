@@ -27,7 +27,6 @@ public class InfiniteViewPager extends ViewPager
     {
         super(context, attrs);
         mPageViewAdapter = new InfinitePagerController(this);
-        setOnPageChangeListener(mPageViewAdapter);
         setAdapter(mPageViewAdapter);
     }
 
@@ -42,8 +41,6 @@ public class InfiniteViewPager extends ViewPager
     {
         mViews.add(view);
         mViewTitles.add(title);
-        mPageViewAdapter.notifyDataSetChanged();
-//        mPageViewAdapter.redraw();
     }
 
     /**

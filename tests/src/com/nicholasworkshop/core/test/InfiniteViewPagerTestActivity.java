@@ -3,6 +3,7 @@ package com.nicholasworkshop.core.test;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.widget.TextView;
 import com.nicholasworkshop.core.view.InfiniteViewPager;
 
@@ -17,9 +18,10 @@ public class InfiniteViewPagerTestActivity extends Activity
 
         for (int i = 0; i < 1; i++) {
             TextView textView = new TextView(this);
-            textView.setText("Page " + i);
+            textView.setText("" + i);
             textView.setTextColor(Color.WHITE);
-            textView.setTextSize(30);
+            textView.setTextSize(128);
+            textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
             switch (i % 3) {
                 case 0:
                     textView.setBackgroundColor(Color.RED);
