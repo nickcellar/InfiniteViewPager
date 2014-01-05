@@ -7,7 +7,7 @@ import android.support.v4.view.ViewPager;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
-import com.nicholasworkshop.core.view.InfinitePagerController;
+import com.nicholasworkshop.core.view.InfinitePagerAdapter;
 
 import java.util.Vector;
 
@@ -34,7 +34,7 @@ public class InfiniteViewPagerTestActivity extends Activity
 
         // create a controller and put it as adapter of view pager
         ViewPager pager = (ViewPager) findViewById(R.id.pager);
-        InfinitePagerController controller = new InfinitePagerController(pager);
+        InfinitePagerAdapter controller = new InfinitePagerAdapter(pager);
         controller.setViews(views);
         pager.setAdapter(controller);
     }

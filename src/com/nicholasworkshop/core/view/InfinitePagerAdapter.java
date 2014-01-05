@@ -2,11 +2,9 @@ package com.nicholasworkshop.core.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,11 +15,11 @@ import android.widget.TextView;
 
 import java.util.Vector;
 
-public class InfinitePagerController extends PagerAdapter implements OnPageChangeListener
+public class InfinitePagerAdapter extends PagerAdapter implements OnPageChangeListener
 {
     private int mCurrent = 0;
     private ViewPager mViewPager;
-    private InfinitePagerListener mListener;
+    private OnInfinitePageChangeListener mListener;
     private FrameLayout[] mFrames = new FrameLayout[3];
     private Vector<View> mViews = new Vector<View>();
 
@@ -30,7 +28,7 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
      *
      * @param pager The instance of parent InfiniteViewPager.
      */
-    public InfinitePagerController(ViewPager pager)
+    public InfinitePagerAdapter(ViewPager pager)
     {
         // store the instance of view pager
         mViewPager = pager;
@@ -63,13 +61,7 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
         shiftViews();
     }
 
-    public void addView(View view)
-    {
-        mViews.add(view);
-        shiftViews();
-    }
-
-    public void setPagerListener(InfinitePagerListener listener)
+    public void setPagerListener(OnInfinitePageChangeListener listener)
     {
         mListener = listener;
     }

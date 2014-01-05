@@ -1,6 +1,6 @@
 package com.nicholasworkshop.core.view;
 
-public interface InfinitePagerListener
+public interface OnInfinitePageChangeListener
 {
 	public abstract void onPageChanged(int position);
 }
