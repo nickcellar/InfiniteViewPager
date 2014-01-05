@@ -15,19 +15,22 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Vector;
+
 public class InfinitePagerController extends PagerAdapter implements OnPageChangeListener
 {
     private int mCurrent = 0;
-    private InfiniteViewPager mViewPager;
+    private ViewPager mViewPager;
     private InfinitePagerListener mListener;
     private FrameLayout[] mFrames = new FrameLayout[3];
+    private Vector<View> mViews = new Vector<View>();
 
     /**
      * Constructor of a pager adapter.
      *
      * @param pager The instance of parent InfiniteViewPager.
      */
-    public InfinitePagerController(InfiniteViewPager pager)
+    public InfinitePagerController(ViewPager pager)
     {
         // store the instance of view pager
         mViewPager = pager;
@@ -54,6 +57,18 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
         }
     }
 
+    public void setViews(Vector<View> views)
+    {
+        mViews = views;
+        shiftViews();
+    }
+
+    public void addView(View view)
+    {
+        mViews.add(view);
+        shiftViews();
+    }
+
     public void setPagerListener(InfinitePagerListener listener)
     {
         mListener = listener;
@@ -68,12 +83,12 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
         }
 
         // fill views into frames
-        int count = mViewPager.getViewCount();
+        int count = mViews.size();
         for (int i = 0; i < 3; i++) {
 
             // get the view
             int index = (mCurrent + i - 1 + count) % count;
-            View view = mViewPager.getViewAt(index);
+            View view = mViews.get(index);
             ViewParent parent = view.getParent();
 
             if (parent != null) {
@@ -179,7 +194,7 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
         int direction = position - 1;
 
         // calculate current position
-        int count = mViewPager.getViewCount();
+        int count = mViews.size();
         mCurrent = (mCurrent + direction + count) % count;
 
         // callback function
