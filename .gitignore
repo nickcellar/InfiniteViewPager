@@ -4,5 +4,6 @@
 # generated files
 bin/
 gen/
+out/
 .idea/
 .settings/
