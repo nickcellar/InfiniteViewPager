@@ -61,7 +61,7 @@ public class InfinitePagerAdapter extends PagerAdapter implements OnPageChangeLi
         shiftViews();
     }
 
-    public void setPagerListener(OnInfinitePageChangeListener listener)
+    public void setOnInfinitePageChangeListener(OnInfinitePageChangeListener listener)
     {
         mListener = listener;
     }

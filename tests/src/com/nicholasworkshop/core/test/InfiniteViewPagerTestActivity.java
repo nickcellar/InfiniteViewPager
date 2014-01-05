@@ -8,10 +8,11 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 import com.nicholasworkshop.core.view.InfinitePagerAdapter;
+import com.nicholasworkshop.core.view.OnInfinitePageChangeListener;
 
 import java.util.Vector;
 
-public class InfiniteViewPagerTestActivity extends Activity
+public class InfiniteViewPagerTestActivity extends Activity implements OnInfinitePageChangeListener
 {
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -22,7 +23,7 @@ public class InfiniteViewPagerTestActivity extends Activity
         // create views and add them to controller
         Vector<View> views = new Vector<View>();
         int[] colors = new int[]{Color.RED, Color.BLUE, Color.GREEN};
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 9; i++) {
             TextView view = new TextView(this);
             view.setText(String.valueOf(i));
             view.setTextColor(Color.WHITE);
@@ -34,8 +35,16 @@ public class InfiniteViewPagerTestActivity extends Activity
 
         // create a controller and put it as adapter of view pager
         ViewPager pager = (ViewPager) findViewById(R.id.pager);
-        InfinitePagerAdapter controller = new InfinitePagerAdapter(pager);
-        controller.setViews(views);
-        pager.setAdapter(controller);
+        InfinitePagerAdapter adapter = new InfinitePagerAdapter(pager);
+        adapter.setViews(views);
+        adapter.setOnInfinitePageChangeListener(this);
+        pager.setAdapter(adapter);
+    }
+
+    @Override
+    public void onPageChanged(int position)
+    {
+        TextView view = (TextView) findViewById(R.id.status_bar);
+        view.setText("Current Position: " + position);
     }
 }

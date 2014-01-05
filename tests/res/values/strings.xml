@@ -2,5 +2,6 @@
 <resources>
 
     <string name="app_name">Infinite ViewPager</string>
+    <string name="status_bar">Status Pending</string>
 
 </resources>
