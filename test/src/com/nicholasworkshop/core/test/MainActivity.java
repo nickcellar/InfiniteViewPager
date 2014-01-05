@@ -1,10 +1,9 @@
-package com.nicholasworkshop.test;
+package com.nicholasworkshop.core.test;
 
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.TextView;
-
 import com.nicholasworkshop.core.view.InfiniteViewPager;
 
 public class MainActivity extends Activity
