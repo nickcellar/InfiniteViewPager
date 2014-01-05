@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,14 +83,7 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
         Context context = mViewPager.getContext();
         assert context != null;
 
-        // get display width and height
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        int width = metrics.widthPixels;
-        int height = metrics.heightPixels;
-
-        // generate bitmap
-        // image must be build with display size
-        view.layout(0, 0, width, height);
+        // build bitmap
         view.setDrawingCacheEnabled(true);
         view.buildDrawingCache();
         Bitmap bitmap = view.getDrawingCache();
