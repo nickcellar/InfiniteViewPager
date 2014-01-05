@@ -11,6 +11,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -37,13 +38,16 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
      */
     public InfinitePagerController(InfiniteViewPager pager)
     {
+        // store the instance of view pager
         mViewPager = pager;
 
         // ensure that pager only has 3 views
         pager.removeAllViews();
+        Context context = pager.getContext();
+        assert context != null;
         for (int i = 0; i < 3; i++) {
-            mFrames[i] = new FrameLayout(pager.getContext());
-            TextView tv = new TextView(pager.getContext());
+            mFrames[i] = new FrameLayout(context);
+            TextView tv = new TextView(context);
             tv.setText("Page" + i);
             mFrames[i].addView(tv);
             pager.addView(mFrames[i]);
@@ -63,68 +67,59 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
             mFrames[i].removeAllViews();
         }
 
-        // filling views into frames
+        // fill views into frames
         int count = mViewPager.getViewCount();
         for (int i = 0; i < 3; i++) {
             int index = (mCurrent + i - 1 + count) % count;
             Log.w(TAG, "Frame " + i + " -> View " + index);
             View view = mViewPager.getViewAt(index);
-            mFrames[i].addView(view);
+            ViewParent parent = view.getParent();
+            if (parent != null) {
+                // if view has parent, fill it with generated dummy
+                ImageView dummy = generateDummy(view);
+                mFrames[i].addView(dummy);
+            } else {
+                mFrames[i].addView(view);
+            }
         }
 
         // reset the current position to center
         mViewPager.setCurrentItem(1, false);
     }
 
-
-    private void generateDummies()
+    private ImageView generateDummy(View view)
     {
-        Log.d(TAG, "Started generating dummies");
-
-        // get display width and height
+        // create an image view
         Context context = mViewPager.getContext();
         assert context != null;
+        ImageView dummy = new ImageView(context);
+
+        // get display width and height
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         int width = metrics.widthPixels;
         int height = metrics.heightPixels;
 
-        int count = mViewPager.getViewCount();
-        ImageView[] dummies = new ImageView[3];
+        try {
+            // generate bitmap
+            // image must be build with display size
+            view.layout(0, 0, width, height);
+            view.setDrawingCacheEnabled(true);
+            view.buildDrawingCache();
+            Bitmap bitmap = view.getDrawingCache();
 
-        // generate images for each page
-        for (int i = 0; i < count; i++) {
-            try {
-                // generate bitmap
-                // image must be build with display size
-                View view = mViewPager.getViewAt(i);
-                assert view != null;
-                view.layout(0, 0, width, height);
-                view.setDrawingCacheEnabled(true);
-                view.buildDrawingCache();
-                Bitmap bitmap = view.getDrawingCache();
+            // create file
+            assert bitmap != null;
+            File file = new File(context.getCacheDir(), "infinite-view-" + view.hashCode());
+            bitmap.compress(CompressFormat.JPEG, 50, new FileOutputStream(file));
 
-                // create file
-                assert bitmap != null;
-                File file = new File(context.getCacheDir(), "infinite-view-" + i);
-                bitmap.compress(CompressFormat.JPEG, 50, new FileOutputStream(file));
-
-                // create dummy
-                dummies[i] = new ImageView(context);
-                dummies[i].setImageDrawable(Drawable.createFromPath(file.getAbsolutePath()));
-            }
-            catch (FileNotFoundException e) {
-                // unable to create bitmap file.
-                e.printStackTrace();
-            }
+            // create dummy
+            dummy.setImageDrawable(Drawable.createFromPath(file.getAbsolutePath()));
         }
-
-        // stick dummies on the null pages
-        for (int i = count - 1; i < 3; i++) {
-//            ViewGroup group = mViewPager.getViewAt(i);
-//            group.removeAllViews();
-//            group.addView(dummies[i % count]);
+        catch (FileNotFoundException e) {
+            // unable to create bitmap file.
+            e.printStackTrace();
         }
-        Log.d(TAG, "Generated dummies");
+        return dummy;
     }
 
     // ===================================================
@@ -144,10 +139,10 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
 
     /**
      * Draw frames to the display.
-     *
-//     * @param container
-//     * @param position
-//     * @return
+     * <p/>
+     * //     * @param container
+     * //     * @param position
+     * //     * @return
      */
     @Override
     public Object instantiateItem(ViewGroup container, int position)
@@ -157,7 +152,7 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
 
     /**
      * Remove frames from display.
-     *
+     * <p/>
      * //     * @param container
      * //     * @param position
      * //     * @param object
@@ -222,7 +217,5 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     public void onPageScrollStateChanged(int state)
     {
         if (state == ViewPager.SCROLL_STATE_IDLE) shiftViews();
-//        else
-//        if (mViewPager.getViewCount() < 3 && state == ViewPager.SCROLL_STATE_DRAGGING) generateDummies();
     }
 }

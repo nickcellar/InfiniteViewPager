@@ -30,7 +30,6 @@ public class InfiniteViewPager extends ViewPager
         mPageViewAdapter = new InfinitePagerController(this);
         setOnPageChangeListener(mPageViewAdapter);
         setAdapter(mPageViewAdapter);
-//        setCurrentItem(1, false);
     }
 
     /**
@@ -42,11 +41,10 @@ public class InfiniteViewPager extends ViewPager
      */
     public void addPage(String title, View view)
     {
-//        FrameLayout frameLayout = new FrameLayout(this.getContext());
-//        frameLayout.addView(view);
         mViews.add(view);
         mViewTitles.add(title);
         mPageViewAdapter.notifyDataSetChanged();
+//        mPageViewAdapter.redraw();
     }
 
     /**
