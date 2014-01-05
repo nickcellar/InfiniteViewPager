@@ -15,7 +15,7 @@ public class InfiniteViewPager extends ViewPager
 {
     private InfinitePagerController mPageViewAdapter;
     private Vector<String> mViewTitles = new Vector<String>();
-    private Vector<FrameLayout> mViews = new Vector<FrameLayout>();
+    private Vector<View> mViews = new Vector<View>();
     private InfinitePagerListener mInfinitePageListener;
 
     /**
@@ -30,7 +30,7 @@ public class InfiniteViewPager extends ViewPager
         mPageViewAdapter = new InfinitePagerController(this);
         setOnPageChangeListener(mPageViewAdapter);
         setAdapter(mPageViewAdapter);
-        setCurrentItem(1, false);
+//        setCurrentItem(1, false);
     }
 
     /**
@@ -42,9 +42,9 @@ public class InfiniteViewPager extends ViewPager
      */
     public void addPage(String title, View view)
     {
-        FrameLayout frameLayout = new FrameLayout(this.getContext());
-        frameLayout.addView(view);
-        mViews.add(frameLayout);
+//        FrameLayout frameLayout = new FrameLayout(this.getContext());
+//        frameLayout.addView(view);
+        mViews.add(view);
         mViewTitles.add(title);
         mPageViewAdapter.notifyDataSetChanged();
     }
@@ -65,7 +65,7 @@ public class InfiniteViewPager extends ViewPager
      * @param index
      * @return
      */
-    public FrameLayout getViewAt(int index)
+    public View getViewAt(int index)
     {
         return mViews.get(index);
     }

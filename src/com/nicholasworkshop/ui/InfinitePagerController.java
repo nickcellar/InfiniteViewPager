@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,15 +23,12 @@ import java.io.FileOutputStream;
 
 public class InfinitePagerController extends PagerAdapter implements OnPageChangeListener
 {
-    // 2 views, one left and one right
     private final String TAG = getClass().getSimpleName();
-    private ImageView[] mDummyImageViews = new ImageView[2];
-
-    private int mCompensateModeCount = 0;
     private int mDirection;
-    private int mCurrent = 1;
+    private int mCurrent = 0;
     private InfiniteViewPager mViewPager;
     private InfinitePagerListener mListener;
+    private FrameLayout[] mFrames = new FrameLayout[3];
 
     /**
      * Constructor of a pager adapter.
@@ -40,10 +38,15 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     public InfinitePagerController(InfiniteViewPager pager)
     {
         mViewPager = pager;
+
+        // ensure that pager only has 3 views
+        pager.removeAllViews();
         for (int i = 0; i < 3; i++) {
-            FrameLayout frameLayout = new FrameLayout(pager.getContext());
-//        frameLayout.addView(view);
-//        pager.add(frameLayout);
+            mFrames[i] = new FrameLayout(pager.getContext());
+            TextView tv = new TextView(pager.getContext());
+            tv.setText("Page" + i);
+            mFrames[i].addView(tv);
+            pager.addView(mFrames[i]);
         }
     }
 
@@ -54,20 +57,21 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
 
     private void shiftViews()
     {
-        // temporarily store the views with an array
+        // remove all views from frames first
+        // to prevent views from having multiple parents
+        for (int i = 0; i < 3; i++) {
+            mFrames[i].removeAllViews();
+        }
+
+        // filling views into frames
         int count = mViewPager.getViewCount();
-        View[] views = new View[count];
-        for (int i = 0; i < count; i++) {
-            ViewGroup group = mViewPager.getViewAt(i);
-            views[i] = group.getChildAt(0);
-            group.removeAllViews();
+        for (int i = 0; i < 3; i++) {
+            int index = (mCurrent + i - 1 + count) % count;
+            Log.w(TAG, "Frame " + i + " -> View " + index);
+            View view = mViewPager.getViewAt(index);
+            mFrames[i].addView(view);
         }
-        // put them all back to the new position
-        for (int i = 0; i < count; i++) {
-            ViewGroup group = mViewPager.getViewAt(i);
-            int index = (i + count + mDirection) % count;
-            group.addView(views[index]);
-        }
+
         // reset the current position to center
         mViewPager.setCurrentItem(1, false);
     }
@@ -75,7 +79,6 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
 
     private void generateDummies()
     {
-        if (mCompensateModeCount <= 0) return;
         Log.d(TAG, "Started generating dummies");
 
         // get display width and height
@@ -85,25 +88,41 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
         int width = metrics.widthPixels;
         int height = metrics.heightPixels;
 
+        int count = mViewPager.getViewCount();
+        ImageView[] dummies = new ImageView[3];
+
         // generate images for each page
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < count; i++) {
             try {
+                // generate bitmap
                 // image must be build with display size
-                View view = mViewPager.getViewAt(i).getChildAt(0);
+                View view = mViewPager.getViewAt(i);
                 assert view != null;
                 view.layout(0, 0, width, height);
                 view.setDrawingCacheEnabled(true);
                 view.buildDrawingCache();
-                File file = new File(mViewPager.getContext().getCacheDir(), "infinite-view-" + i);
                 Bitmap bitmap = view.getDrawingCache();
+
+                // create file
                 assert bitmap != null;
+                File file = new File(context.getCacheDir(), "infinite-view-" + i);
                 bitmap.compress(CompressFormat.JPEG, 50, new FileOutputStream(file));
-                mDummyImageViews[i].setImageDrawable(Drawable.createFromPath(file.getAbsolutePath()));
+
+                // create dummy
+                dummies[i] = new ImageView(context);
+                dummies[i].setImageDrawable(Drawable.createFromPath(file.getAbsolutePath()));
             }
             catch (FileNotFoundException e) {
                 // unable to create bitmap file.
                 e.printStackTrace();
             }
+        }
+
+        // stick dummies on the null pages
+        for (int i = count - 1; i < 3; i++) {
+//            ViewGroup group = mViewPager.getViewAt(i);
+//            group.removeAllViews();
+//            group.addView(dummies[i % count]);
         }
         Log.d(TAG, "Generated dummies");
     }
@@ -124,23 +143,21 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     }
 
     /**
-     * Draw the saved views to the display.
-     * <p/>
-     * //     * @param container
-     * //     * @param position
-     * //     * @return
+     * Draw frames to the display.
+     *
+//     * @param container
+//     * @param position
+//     * @return
      */
     @Override
     public Object instantiateItem(ViewGroup container, int position)
     {
-        if (position >= mViewPager.getViewCount()) return null;
-        container.addView(mViewPager.getViewAt(position));
-        return mViewPager.getViewAt(position);
+        return mFrames[position];
     }
 
     /**
-     * Remove the object from display.
-     * <p/>
+     * Remove frames from display.
+     *
      * //     * @param container
      * //     * @param position
      * //     * @param object
@@ -148,7 +165,8 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     @Override
     public void destroyItem(ViewGroup container, int position, Object object)
     {
-        container.removeView((FrameLayout) object);
+        View view = (View) object;
+        container.removeView(view);
     }
 
     /**
@@ -178,9 +196,12 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
         // left if equals -1
         // right if equals 1
         mDirection = position - 1;
-        mCurrent += mDirection;
+
+        // calculate current position
         int count = mViewPager.getViewCount();
-        if (count != 0) mCurrent %= count;
+        mCurrent = (mCurrent + mDirection + count) % count;
+
+        // callback function
         if (mListener != null) mListener.onPageChanged(mCurrent);
     }
 
@@ -201,6 +222,7 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
     public void onPageScrollStateChanged(int state)
     {
         if (state == ViewPager.SCROLL_STATE_IDLE) shiftViews();
-//        else if (state == ViewPager.SCROLL_STATE_DRAGGING) generateDummies();
+//        else
+//        if (mViewPager.getViewCount() < 3 && state == ViewPager.SCROLL_STATE_DRAGGING) generateDummies();
     }
 }
