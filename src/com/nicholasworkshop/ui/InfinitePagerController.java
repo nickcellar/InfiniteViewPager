@@ -2,8 +2,6 @@ package com.nicholasworkshop.ui;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.drawable.Drawable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -15,17 +13,10 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 
 public class InfinitePagerController extends PagerAdapter implements OnPageChangeListener
 {
     private final String TAG = getClass().getSimpleName();
-    private int mDirection;
     private int mCurrent = 0;
     private InfiniteViewPager mViewPager;
     private InfinitePagerListener mListener;
@@ -89,36 +80,26 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
 
     private ImageView generateDummy(View view)
     {
-        // create an image view
+        // get context from view pager
         Context context = mViewPager.getContext();
         assert context != null;
-        ImageView dummy = new ImageView(context);
 
         // get display width and height
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         int width = metrics.widthPixels;
         int height = metrics.heightPixels;
 
-        try {
-            // generate bitmap
-            // image must be build with display size
-            view.layout(0, 0, width, height);
-            view.setDrawingCacheEnabled(true);
-            view.buildDrawingCache();
-            Bitmap bitmap = view.getDrawingCache();
+        // generate bitmap
+        // image must be build with display size
+        view.layout(0, 0, width, height);
+        view.setDrawingCacheEnabled(true);
+        view.buildDrawingCache();
+        Bitmap bitmap = view.getDrawingCache();
 
-            // create file
-            assert bitmap != null;
-            File file = new File(context.getCacheDir(), "infinite-view-" + view.hashCode());
-            bitmap.compress(CompressFormat.JPEG, 50, new FileOutputStream(file));
-
-            // create dummy
-            dummy.setImageDrawable(Drawable.createFromPath(file.getAbsolutePath()));
-        }
-        catch (FileNotFoundException e) {
-            // unable to create bitmap file.
-            e.printStackTrace();
-        }
+        // create dummy image from bitmap generated
+        assert bitmap != null;
+        ImageView dummy = new ImageView(context);
+        dummy.setImageBitmap(bitmap);
         return dummy;
     }
 
@@ -190,11 +171,11 @@ public class InfinitePagerController extends PagerAdapter implements OnPageChang
         // calculate the direction
         // left if equals -1
         // right if equals 1
-        mDirection = position - 1;
+        int direction = position - 1;
 
         // calculate current position
         int count = mViewPager.getViewCount();
-        mCurrent = (mCurrent + mDirection + count) % count;
+        mCurrent = (mCurrent + direction + count) % count;
 
         // callback function
         if (mListener != null) mListener.onPageChanged(mCurrent);
